@@ -1,0 +1,607 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model activity_logs {
+  id_           Int      @id
+  user_name     String   @db.Text
+  user_id       Int?
+  artist_id     Int?
+  artist_url    String?  @db.Text
+  artist_name   String?  @db.Text
+  action_type   String?  @db.Text
+  action_points Int      @default(0)
+  user_action   String   @db.Text
+  ip_address    String   @db.Text
+  action_date   DateTime @default(now()) @db.DateTime(0)
+}
+
+model administrators {
+  id_       Int    @id
+  user_name String @db.Text
+  password  String @db.Text
+  points    Int    @default(0)
+  clicks    Int    @default(0)
+  rights_   String @default("read") @db.VarChar(255)
+}
+
+model albums {
+  id_             Int      @id
+  artist_id       Int
+  artist_name     String?  @db.Text
+  artist_url      String?  @db.Text
+  name_           String   @db.Text
+  label           String?  @db.Text
+  type_           String?  @db.Text
+  release_date    DateTime @default(dbgenerated("('1900-01-01')")) @db.Date
+  date_format     String   @default("m/d/Y") @db.VarChar(10)
+  date_           DateTime @default(now()) @db.DateTime(0)
+  img_            String?  @default("default_album.png") @db.VarChar(255)
+  tracks_in       Int      @default(0)
+  tracks_manuel   Int      @default(0)
+  duration_manuel Int      @default(0)
+  apple_music     String?  @db.Text
+  spotify         String?  @db.Text
+  amazon          String?  @db.Text
+  youtube_music   String?  @db.Text
+  datpiff         String?  @db.Text
+  tidal           String?  @db.Text
+
+  @@index([artist_id], map: "artist_id")
+}
+
+model api_access_tokens {
+  id_        Int      @id
+  token      String   @db.VarChar(255)
+  created_at DateTime @default(now()) @db.DateTime(0)
+}
+
+model articles {
+  id_          Int      @id
+  artist_id    Int
+  title        String   @db.Text
+  release_date DateTime @db.Date
+  url_         String   @db.Text
+  date_        DateTime @default(now()) @db.Timestamp(0)
+
+  @@index([artist_id], map: "artist_id")
+}
+
+model artist_app_devices_tokens {
+  id_       Int    @id
+  artist_id Int
+  token     String @unique(map: "token") @db.VarChar(255)
+
+  @@index([artist_id], map: "artist_id")
+}
+
+model artistes {
+  id_                 Int       @id
+  name_               String    @db.VarChar(255)
+  nick_names          String?   @db.Text
+  url_                String    @db.VarChar(255)
+  verification_status Boolean   @default(false)
+  dob                 DateTime? @default(dbgenerated("('0001-01-01')")) @db.Date
+  dob_format          String    @default("m/d/Y") @db.VarChar(10)
+  birthplace          String?   @db.Text
+  img_                String?   @db.VarChar(255)
+  alternate_name      String?   @db.Text
+  occupation          String    @default("Musician") @db.VarChar(255)
+  genre               String?   @db.Text
+  category            String    @db.Text
+  gender              String    @default("none") @db.VarChar(100)
+  label               String?   @db.Text
+  label_id            Int
+  group_type          String    @default("'solo'") @db.VarChar(100)
+  living_status       String    @default("'alive'") @db.VarChar(100)
+  youtube             String?   @default("#") @db.VarChar(255)
+  main_channel_id     String?   @db.Text
+  facebook            String?   @default("#") @db.VarChar(255)
+  instagram           String?   @default("#") @db.VarChar(255)
+  wikipedia           String?   @default("#") @db.VarChar(255)
+  genius_url          String?   @db.Text
+  twitter             String?   @default("#") @db.VarChar(255)
+  website             String    @default("#") @db.VarChar(255)
+  soundcloud          String    @db.VarChar(255)
+  facebook_count      Int?
+  instagram_count     Int?
+  soundcloud_count    Int?
+  twitter_count       Int?
+  youtube_count       Int?
+  spotify_count       Int       @default(0)
+  views               String    @default("0") @db.VarChar(255)
+  ersy_views          Int       @default(0)
+  monthly_listeners   String    @default("0") @db.VarChar(255)
+  subscriptions       Int       @default(0)
+  total_music_videos  Int       @default(0)
+  total_audios        Int       @default(0)
+  total_discography   Int       @default(0)
+  total_interviews    Int       @default(0)
+  total_live          Int       @default(0)
+  total_removed       Int       @default(0)
+  related_artists     String?   @db.Text
+  date_               DateTime  @default(now()) @db.DateTime(0)
+  points              Int       @default(0)
+  last_time           DateTime  @default(now()) @db.DateTime(0)
+
+  @@index([label_id], map: "label_id")
+}
+
+model artists_videos {
+  id_              Int      @id
+  artist_id        Int
+  video_id         Int?
+  link_date        DateTime @default(now()) @db.DateTime(0)
+  youtube_video_id String   @db.Text
+  album_id         Int      @default(0)
+  category         String?  @db.VarChar(255)
+  old_category     String?  @db.VarChar(255)
+  producer_id      Int?     @default(0)
+
+  @@index([album_id], map: "album_id")
+  @@index([artist_id], map: "artist_id")
+  @@index([video_id], map: "video_id")
+}
+
+model awards {
+  id_          Int      @id
+  artist_id    Int
+  artist_url   String   @db.Text
+  artist_name  String   @db.Text
+  type_        String   @db.Text
+  a_date       DateTime @db.Date
+  description_ String   @db.Text
+  spotify_     String   @db.Text
+  apple_music  String   @db.Text
+  video_id     Int      @default(0)
+  img_         String   @default("default_award.png") @db.VarChar(255)
+  date_        DateTime @default(now()) @db.DateTime(0)
+
+  @@index([artist_id], map: "artist_id")
+  @@index([video_id], map: "video_id")
+}
+
+model cart_items {
+  id_          Int     @id
+  user_id      Int
+  merch_id     Int
+  color_option String? @db.Text
+  size_option  String? @db.Text
+  sku          String  @db.Text
+  variant_id   String  @db.Text
+  quantity     Int     @default(1)
+  price        Int
+
+  @@index([merch_id], map: "merch_id")
+  @@index([user_id], map: "user_id")
+}
+
+model channels {
+  id_                Int      @id
+  name_              String   @db.Text
+  channel_id         String   @db.Text
+  img_               String   @db.Text
+  data_              String   @db.Text
+  subscribers        String   @db.Text
+  last_pull          Int      @default(0)
+  channel_custom_url String   @db.Text
+  insert_date        DateTime @default(now()) @db.DateTime(0)
+}
+
+model columns_setting {
+  id_       Int    @id
+  thumbnail String @default("show") @db.VarChar(9)
+  title     String @default("show") @db.VarChar(9)
+  duration  String @default("show") @db.VarChar(9)
+  uploader  String @default("show") @db.VarChar(9)
+  date      String @default("show") @db.VarChar(9)
+  views     String @default("show") @db.VarChar(9)
+  featuring String @default("show") @db.VarChar(9)
+  album     String @default("show") @db.VarChar(9)
+  writers   String @default("show") @db.VarChar(9)
+  producer  String @default("show") @db.VarChar(9)
+  streams   String @default("show") @db.VarChar(9)
+  sales     String @default("show") @db.VarChar(9)
+  label     String @default("show") @db.VarChar(9)
+}
+
+model devices_tokens {
+  id_     Int      @id
+  user_id Int
+  token   String   @db.Text
+  date_   DateTime @default(now()) @db.DateTime(0)
+
+  @@index([user_id], map: "user_id")
+}
+
+model gallery {
+  id_           Int      @id
+  artist_id     Int
+  source0       String   @default("-") @db.VarChar(255)
+  source        String   @db.Text
+  url_          String?  @db.Text
+  thumbnail_url String?  @db.VarChar(255)
+  width         Int?
+  height        Int?
+  date_         DateTime @default(now()) @db.DateTime(0)
+  location      String?  @db.Text
+  date_taken    DateTime @default(now()) @db.DateTime(0)
+
+  @@index([artist_id], map: "artist_id")
+}
+
+model global_lists {
+  id_           Int       @id
+  name_         String    @db.Text
+  url_          String    @db.Text
+  type_         String    @default("undefined") @db.VarChar(20)
+  display       String    @default("list") @db.VarChar(10)
+  sql_condition String?   @db.Text
+  content       String?   @db.LongText
+  date_         DateTime  @default(now()) @db.DateTime(0)
+  last_time     DateTime? @default(now()) @db.DateTime(0)
+  category_     String?   @db.Text
+  featured_     Boolean   @default(false)
+}
+
+model likes {
+  id_      Int    @id
+  user_id  Int
+  video_id String @db.VarChar(20)
+}
+
+model lists {
+  id_       Int      @id
+  artist_id Int
+  name_     String   @db.Text
+  url_      String   @db.Text
+  type_     String   @default("undefined") @db.VarChar(20)
+  content   String   @db.Text
+  date_     DateTime @default(now()) @db.DateTime(0)
+}
+
+model logs {
+  id         Int      @id
+  log_time   DateTime @default(now()) @db.Timestamp(0)
+  log_level  String   @db.VarChar(20)
+  log_type   String   @db.VarChar(20)
+  log_object String   @db.Text
+  message    String   @db.Text
+}
+
+model merch {
+  id_         Int      @id
+  artist_id   Int
+  artist_name String   @db.Text
+  artist_url  String   @db.Text
+  title       String   @db.Text
+  printify_id String   @default("") @db.VarChar(255)
+  data_       String?  @db.Text
+  url_        String   @db.Text
+  img_        String?  @default("default_merch.png") @db.VarChar(255)
+  price       String   @db.Text
+  visibility  Int      @default(0) @db.TinyInt
+  date_       DateTime @default(now()) @db.DateTime(0)
+
+  @@index([artist_id], map: "artist_id")
+}
+
+model meta_data {
+  id_              Int     @id
+  url              String  @db.Text
+  title            String? @db.Text
+  meta_tags        String? @db.Text
+  meta_description String? @db.Text
+}
+
+model movies {
+  id_          Int      @id
+  artist_id    Int
+  name_        String   @db.Text
+  director     String   @db.Text
+  hour         Int
+  minute       Int
+  release_date DateTime @db.Date
+  wiki_link    String   @db.Text
+  img_         String   @default("default_movie.jpeg") @db.VarChar(255)
+
+  @@index([artist_id], map: "artist_id")
+}
+
+model netflix {
+  id_          Int      @id
+  artist_id    Int
+  artist_url   String?  @db.Text
+  name_        String   @db.Text
+  type_        String   @db.Text
+  hour         Int
+  minute       Int
+  release_date DateTime @db.Date
+  img_         String   @default("default_netflix.png") @db.VarChar(255)
+  date_        DateTime @default(now()) @db.DateTime(0)
+
+  @@index([artist_id], map: "artist_id")
+}
+
+model notepad {
+  id_     Int     @id
+  user_id Int
+  note_   String? @db.LongText
+
+  @@index([user_id], map: "user_id")
+}
+
+model notifications {
+  id_        Int      @id
+  type_      String   @default("message") @db.VarChar(20)
+  artist_id  Int
+  cover      String?  @db.Text
+  ref        String?  @db.VarChar(255)
+  ref_id     Int      @default(0)
+  message_   String   @db.Text
+  date       DateTime @default(now()) @db.DateTime(0)
+  send_state Boolean  @default(false)
+
+  @@index([artist_id], map: "artist_id")
+}
+
+model playlist_videos {
+  id_          Int      @id
+  playlist_id  Int
+  user_id      Int
+  artist_id    Int
+  artist_url   String   @db.Text
+  artist_name  String   @db.Text
+  video_id     String   @db.Text
+  title        String   @db.Text
+  duration     Int
+  uploader     String   @db.Text
+  views        Int
+  release_date DateTime @default(now()) @db.DateTime(0)
+  added_date   DateTime @default(now()) @db.DateTime(0)
+  data_        String   @db.Text
+
+  @@index([artist_id], map: "artist_id")
+}
+
+model playlists {
+  id_         Int    @id
+  name_       String @db.Text
+  user_id     Int
+  total_count Int    @default(0)
+
+  @@index([user_id], map: "user_id")
+}
+
+model pull_videos {
+  id_                Int      @id
+  youtube_channel_id Int      @default(1)
+  artist_url         String?  @db.Text
+  artist_name        String?  @db.Text
+  artist_group_id    String?  @db.Text
+  feat_artists       String?  @db.Text
+  album_id           Int?
+  album_name         String?  @db.Text
+  video_id           String?  @db.VarChar(1000)
+  title              String?  @db.VarChar(1000)
+  duration           Int
+  uploader           String?  @db.Text
+  views              String   @default("0") @db.VarChar(255)
+  release_date       DateTime @default(now()) @db.DateTime(0)
+  added_date         DateTime @default(now()) @db.DateTime(0)
+  description_       String?  @db.VarChar(1000)
+  img                String?  @db.VarChar(1000)
+  category           String   @default("discography") @db.VarChar(255)
+  embed              String?  @db.Text
+  embed2             String?  @db.Text
+  embed3             String?  @db.Text
+  embed4             String?  @db.Text
+  embed5             String?  @db.Text
+  data_              String?  @db.Text
+  tags               String   @default("") @db.VarChar(2000)
+  flags              String?  @db.Text
+  album              String?  @db.Text
+  writers            String?  @db.Text
+  producers          String?  @db.Text
+  producer_id        Int?
+  producer_name      String?  @db.Text
+  streams            String?  @db.Text
+  sales              String?  @db.Text
+  label              String?  @db.Text
+
+  @@index([youtube_channel_id], map: "youtube_channel_id")
+}
+
+model record_labels {
+  id_    Int    @id
+  name_  String @db.Text
+  url_   String @db.Text
+  year_  Int?   @db.Year
+  img_   String @default("default_record-label.png") @db.VarChar(255)
+  ceo_   String @default("-") @db.VarChar(255)
+  count_ Int    @default(0)
+}
+
+model test_tokens {
+  id        Int      @id
+  device_os String   @db.VarChar(50)
+  token     String   @db.Text
+  add_time  DateTime @default(now()) @db.Timestamp(0)
+}
+
+model token {
+  id_         Int      @id
+  device_type String   @db.Text
+  token       String   @db.Text
+  artist_id   Int
+  date_       DateTime @default(now()) @db.DateTime(0)
+
+  @@index([artist_id], map: "artist_id")
+}
+
+model tours {
+  id_         Int    @id
+  artist_id   Int
+  artist_url  String @db.Text
+  artist_name String @db.Text
+  name_       String @db.Text
+  state_      String @db.Text
+  opening_act String @db.Text
+  tickets     String @db.Text
+  img_        String @default("default_tour.png") @db.VarChar(255)
+
+  @@index([artist_id], map: "artist_id")
+}
+
+model unsubscribed_users {
+  id_   Int      @id
+  token String   @db.Text
+  date_ DateTime @default(now()) @db.DateTime(0)
+}
+
+model unsubscribed_users_subscriptions {
+  id_       Int      @id
+  user_id   Int
+  artist_id Int
+  date_     DateTime @default(now()) @db.DateTime(0)
+
+  @@index([artist_id], map: "artist_id")
+  @@index([user_id], map: "unsubscribed_users_subscriptions_ibfk_2")
+}
+
+model user_session_tokens {
+  id_      Int      @id
+  user_id  Int
+  token_   String   @db.VarChar(255)
+  date_    DateTime @default(now()) @db.DateTime(0)
+  exp_date DateTime @db.DateTime(0)
+}
+
+model users {
+  id_                 Int      @id @default(autoincrement())
+  email               String   @db.VarChar(1000)
+  pass_word           String?  @db.VarChar(1000)
+  username            String?  @db.VarChar(255)
+  first_name          String?  @db.Text
+  last_name           String?  @db.Text
+  phone               String?  @db.Text
+  img_                String   @default("default_profile_pic.png") @db.VarChar(255)
+  odometer            Int      @default(0)
+  clicks              Int      @default(0)
+  password_token      String?  @db.Text
+  password_token_date DateTime @default(now()) @db.DateTime(0)
+  date_               DateTime @default(now()) @db.DateTime(0)
+  last_time           DateTime @default(now()) @db.DateTime(0)
+  state_              String   @default("active") @db.VarChar(255)
+  login_count         Int      @default(0)
+  googleId            String?  @db.VarChar(100)
+  passwordResetCode   Int?
+}
+
+model users_entries {
+  id_          Int      @id
+  user_id      Int
+  url_         String   @db.Text
+  description_ String   @db.Text
+  state_       String   @default("new") @db.VarChar(11)
+  date_        DateTime @default(now()) @db.DateTime(0)
+
+  @@index([user_id], map: "user_id")
+}
+
+model users_notifications {
+  id_             Int     @id
+  user_id         Int
+  notification_id Int
+  view_state      Boolean @default(false)
+
+  @@index([notification_id], map: "notification_id")
+  @@index([user_id], map: "user_id")
+}
+
+model users_subscriptions {
+  id_       Int      @id
+  user_id   Int
+  artist_id Int
+  date_     DateTime @default(now()) @db.DateTime(0)
+
+  @@index([artist_id], map: "artist_id")
+  @@index([user_id], map: "user_id")
+}
+
+model videos {
+  id_              Int      @id @default(autoincrement())
+  artist_id        Int
+  artist_url       String?  @db.Text
+  artist_name      String?  @db.Text
+  artist_group_id  String?  @db.Text
+  feat_artists     String?  @db.Text
+  album_id         Int?
+  video_id         String?  @db.VarChar(1000)
+  title            String?  @db.VarChar(1000)
+  duration         Int
+  uploader         String?  @db.Text
+  views            String   @default("0") @db.VarChar(255)
+  release_date     DateTime @default(now()) @db.DateTime(0)
+  added_date       DateTime @default(now()) @db.DateTime(0)
+  description_     String?  @db.VarChar(1000)
+  img              String?  @db.VarChar(1000)
+  category         String   @default("discography") @db.VarChar(255)
+  old_category     String?  @default("") @db.VarChar(255)
+  category_history String?  @db.Text
+  embed            String?  @db.Text
+  embed2           String?  @db.Text
+  embed3           String?  @db.Text
+  embed4           String?  @db.Text
+  embed5           String?  @db.Text
+  data_            String?  @db.Text
+  tags             String   @default("") @db.VarChar(2000)
+  album            String?  @db.Text
+  writers          String?  @db.Text
+  producers        String?  @db.Text
+  producer_id      Int?
+  producer_name    String?  @db.Text
+  streams          String?  @db.Text
+  sales            String?  @db.Text
+  label            String?  @db.Text
+
+  @@index([album_id], map: "album_id")
+  @@index([artist_id], map: "artist_id")
+}
+
+model view_history {
+  id_       Int      @id @default(autoincrement())
+  user_id   Int
+  artist_id Int
+  view_date DateTime @default(now()) @db.DateTime(0)
+
+  @@index([artist_id], map: "artist_id")
+  @@index([user_id], map: "user_id")
+}
+
+model visitors {
+  id_              Int      @id @default(autoincrement())
+  ip_              String   @db.VarChar(20)
+  user_id          Int      @default(0)
+  first_visit_date DateTime @default(now()) @db.DateTime(0)
+  last_visit_date  DateTime @default(now()) @db.DateTime(0)
+}
+
+model visitors_count {
+  id_    Int @id @default(autoincrement())
+  visits Int
+}
+
+model volunteer {
+  id_          Int      @id @default(autoincrement())
+  name_        String   @db.Text
+  email_       String   @db.Text
+  type_        String   @db.Text
+  description_ String   @db.Text
+  date_        DateTime @default(now()) @db.DateTime(0)
+}
