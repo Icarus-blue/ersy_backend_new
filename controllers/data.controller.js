@@ -29,6 +29,56 @@ export const getMusicVideos = expressAsyncHandler(async (req, res, next) => {
     })
 })
 
+export const getVideos = expressAsyncHandler(async (req, res, next) => {
+
+    const { page, pageSize, query, album_id, category } = req.query
+    let videos = []
+    if (query !== undefined || album_id !== undefined) {
+        videos = await client.videos.findMany({
+            take: parseInt(pageSize),
+            skip: (page - 1) * pageSize,
+            distinct: ['title', 'album_id', 'id_'],
+            where: {
+                OR: [
+                    {
+                        title: { contains: query }
+                    },
+                    { album_id: parseInt(album_id) },
+                ]
+            }
+        });
+    } else {
+        console.log('hello');
+        videos = await client.videos.findMany({
+            take: parseInt(pageSize),
+            skip: (page - 1) * pageSize,
+            distinct: ['title', 'album_id', 'id_']
+        });
+        console.log(videos);
+    }
+
+    if (category === 'trending') {
+        videos = await client.videos.findMany({
+            take: 200,
+            // skip: (page - 1) * pageSize,
+            distinct: ['title', 'album_id', 'id_'],
+            where: {
+                OR: [
+                    {
+                        title: { contains: query }
+                    },
+                    { album_id: parseInt(album_id) },
+                ]
+            }
+        });
+        videos = videos.filter((video) => parseInt(video.views) > 10000000)
+    }
+    res.status(200).json({
+        status: true,
+        videos
+    })
+})
+
 export const getAllSongs = expressAsyncHandler(async (req, res, next) => {
 
     const { page, pageSize, query, album_id, category } = req.query
