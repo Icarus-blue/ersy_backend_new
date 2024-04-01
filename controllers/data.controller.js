@@ -36,8 +36,7 @@ export const getVideos = expressAsyncHandler(async (req, res, next) => {
     if (query !== undefined || album_id !== undefined) {
         videos = await client.videos.findMany({
             take: parseInt(pageSize),
-            skip: (page - 1) * pageSize,
-            distinct: ['title', 'album_id', 'id_'],
+            skip: (page - 1) * pageSize,        
             where: {
                 OR: [
                     {
@@ -47,21 +46,18 @@ export const getVideos = expressAsyncHandler(async (req, res, next) => {
                 ]
             }
         });
-    } else {
-        console.log('hello');
+    } else {   
         videos = await client.videos.findMany({
             take: parseInt(pageSize),
             skip: (page - 1) * pageSize,
             distinct: ['title', 'album_id', 'id_']
-        });
-        console.log(videos);
+        });   
     }
 
     if (category === 'trending') {
         videos = await client.videos.findMany({
             take: 200,
-            // skip: (page - 1) * pageSize,
-            distinct: ['title', 'album_id', 'id_'],
+            // skip: (page - 1) * pageSize,  
             where: {
                 OR: [
                     {
