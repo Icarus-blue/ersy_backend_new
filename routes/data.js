@@ -17,6 +17,7 @@ router.get("/artists/:artist_id", VideoController.getArtist)
 router.get("/getArtist", VideoController.getArtistSpecific)
 
 router.get('/albums', VideoController.getAlbumsById)
+router.get('/getallalbumsbysearch', VideoController.getAllAlbumsBySearch)
 router.post('/albums/search', VideoController.getAlbumsBySearch)
 
 

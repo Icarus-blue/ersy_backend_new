@@ -81,10 +81,17 @@ export const getAllSongs = expressAsyncHandler(async (req, res, next) => {
     const pageNumber = parseInt(page, 10);
     const size = parseInt(pageSize, 10);
     if (!query) return false
-    let sql = `SELECT v.* 
-    FROM videos AS v
-    RIGHT JOIN artists_videos AS av ON v.id_ = av.video_id
-    WHERE av.artist_id = ${query}`
+    if (category == 'interviews') {
+        let sql = `SELECT v.* 
+        FROM videos AS v
+        RIGHT JOIN artists_videos AS av ON v.id_ = av.video_id
+        WHERE av.artist_id = ${query} AND v.category='interviews'`
+    } else {
+        let sql = `SELECT v.* 
+        FROM videos AS v
+        RIGHT JOIN artists_videos AS av ON v.id_ = av.video_id
+        WHERE av.artist_id = ${query}`
+    }
     const offset = (pageNumber - 1) * size;
     sql += ` LIMIT ${size} OFFSET ${offset}`;
     let baseQuery = Prisma.raw(sql);
@@ -97,12 +104,17 @@ export const getAllSongs = expressAsyncHandler(async (req, res, next) => {
 
 export const getSongsBySearch = expressAsyncHandler(async (req, res, next) => {
 
-    const { page, pageSize, query } = req.query
+    const { page, pageSize, query, category } = req.query
     const pageNumber = parseInt(page, 10);
     const size = parseInt(pageSize, 10);
     const jsonObj = JSON.parse(query);
     if (!query) return false
-    let sql = `SELECT * FROM videos WHERE title LIKE '%${jsonObj.q}%' AND artist_id=${jsonObj.artist}`;
+    let sql = '';
+    if (category == 'interviews') {
+        sql = `SELECT * FROM videos WHERE title LIKE '%${jsonObj.q}%' AND artist_id=${jsonObj.artist} AND category='interviews'`;
+    } else {
+        sql = `SELECT * FROM videos WHERE title LIKE '%${jsonObj.q}%' AND artist_id=${jsonObj.artist}`;
+    }
     const offset = (pageNumber - 1) * size;
     sql += ` LIMIT ${size} OFFSET ${offset}`;
     let baseQuery = Prisma.raw(sql);
@@ -113,6 +125,26 @@ export const getSongsBySearch = expressAsyncHandler(async (req, res, next) => {
         videos
     })
 })
+
+export const getAllAlbumsBySearch = expressAsyncHandler(async (req, res, next) => {
+
+    const { page, pageSize, query } = req.query
+    const pageNumber = parseInt(page, 10);
+    const size = parseInt(pageSize, 10);
+    const jsonObj = JSON.parse(query);
+    if (!query) return false
+    let sql = `SELECT * FROM albums WHERE name_ LIKE '%${jsonObj.q}%' AND artist_id=${jsonObj.artist}`;
+    const offset = (pageNumber - 1) * size;
+    sql += ` LIMIT ${size} OFFSET ${offset}`;
+    let baseQuery = Prisma.raw(sql);
+    const albums = await client.$queryRaw(baseQuery)
+    if (albums.length == 0) next({ message: 'Such songs could not be found', status: 404 })
+    res.status(200).json({
+        status: true,
+        albums
+    })
+})
+
 
 export const getSongsBySort = expressAsyncHandler(async (req, res, next) => {
 
