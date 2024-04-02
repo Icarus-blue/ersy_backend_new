@@ -36,7 +36,7 @@ export const getVideos = expressAsyncHandler(async (req, res, next) => {
     if (query !== undefined || album_id !== undefined) {
         videos = await client.videos.findMany({
             take: parseInt(pageSize),
-            skip: (page - 1) * pageSize,        
+            skip: (page - 1) * pageSize,
             where: {
                 OR: [
                     {
@@ -46,12 +46,12 @@ export const getVideos = expressAsyncHandler(async (req, res, next) => {
                 ]
             }
         });
-    } else {   
+    } else {
         videos = await client.videos.findMany({
             take: parseInt(pageSize),
             skip: (page - 1) * pageSize,
             distinct: ['title', 'album_id', 'id_']
-        });   
+        });
     }
 
     if (category === 'trending') {
@@ -94,6 +94,75 @@ export const getAllSongs = expressAsyncHandler(async (req, res, next) => {
         videos
     })
 })
+
+export const getSongsBySearch = expressAsyncHandler(async (req, res, next) => {
+
+    const { page, pageSize, query } = req.query
+    const pageNumber = parseInt(page, 10);
+    const size = parseInt(pageSize, 10);
+    const jsonObj = JSON.parse(query);
+    if (!query) return false
+    let sql = `SELECT * FROM videos WHERE title LIKE '%${jsonObj.q}%' AND artist_id=${jsonObj.artist}`;
+    const offset = (pageNumber - 1) * size;
+    sql += ` LIMIT ${size} OFFSET ${offset}`;
+    let baseQuery = Prisma.raw(sql);
+    const videos = await client.$queryRaw(baseQuery)
+    if (videos.length == 0) next({ message: 'Such songs could not be found', status: 404 })
+    res.status(200).json({
+        status: true,
+        videos
+    })
+})
+
+export const getSongsBySort = expressAsyncHandler(async (req, res, next) => {
+
+    const { page, pageSize, query } = req.query;
+    let where = {
+        name_: {
+            not: '0'
+        }
+    };
+    const pageNumber = parseInt(page, 10);
+    const size = parseInt(pageSize, 10);
+    const jsonObj = JSON.parse(query);
+    const artist = jsonObj.artist;
+    const sortMode = jsonObj.sortMode;
+    const offset = (pageNumber - 1) * size;
+    let sql = `SELECT * FROM videos WHERE artist_id = ${artist}`
+    sql += ` LIMIT ${size} OFFSET ${offset}`;
+    let baseQuery = Prisma.raw(sql);
+    let videosUnsorted = await client.$queryRaw(baseQuery)
+    let videosSorted
+    switch (sortMode) {
+        case 'Most Views':
+            videosSorted = videosUnsorted
+                .map(video => ({ ...video, views: parseInt(video.views) }))
+                .sort((a, b) => b.views - a.views);
+            break;
+
+        case 'Recent First':
+            videosSorted = videosUnsorted
+                .map(video => ({ ...video, uploaded: new Date(video.release_date) }))
+                .sort((a, b) => b.uploaded - a.uploaded);
+            break;
+
+        case 'Older First':
+            videosSorted = videosUnsorted
+                .map(video => ({ ...video, uploaded: new Date(video.release_date) }))
+                .sort((a, b) => a.uploaded - b.uploaded);
+            break;
+
+    }
+    const paginatedVideos = videosSorted.slice((page - 1) * pageSize, page * pageSize);
+
+    res.status(200).json({
+        status: true,
+        videos: paginatedVideos
+    })
+
+})
+
+
 
 export const getInterviews = expressAsyncHandler(async (req, res, next) => {
 

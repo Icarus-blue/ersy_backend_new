@@ -9,6 +9,8 @@ router.get('/getallsongs', VideoController.getAllSongs)
 router.get('/interviews', VideoController.getInterviews)
 router.get('/gallery_artist', VideoController.getGalleryArtist)
 router.get('/colloborates', VideoController.getColloborates)
+router.get('/getallsongsbysearch', VideoController.getSongsBySearch)
+router.get('/getallsongsbysort', VideoController.getSongsBySort)
 
 router.get('/artists', VideoController.getArtistes)
 router.get("/artists/:artist_id", VideoController.getArtist)
