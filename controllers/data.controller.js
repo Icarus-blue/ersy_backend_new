@@ -81,13 +81,14 @@ export const getAllSongs = expressAsyncHandler(async (req, res, next) => {
     const pageNumber = parseInt(page, 10);
     const size = parseInt(pageSize, 10);
     if (!query) return false
+    let sql = '';
     if (category == 'interviews') {
-        let sql = `SELECT v.* 
+        sql = `SELECT v.* 
         FROM videos AS v
         RIGHT JOIN artists_videos AS av ON v.id_ = av.video_id
         WHERE av.artist_id = ${query} AND v.category='interviews'`
     } else {
-        let sql = `SELECT v.* 
+        sql = `SELECT v.* 
         FROM videos AS v
         RIGHT JOIN artists_videos AS av ON v.id_ = av.video_id
         WHERE av.artist_id = ${query}`
