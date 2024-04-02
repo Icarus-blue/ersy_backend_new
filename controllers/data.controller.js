@@ -83,10 +83,7 @@ export const getAllSongs = expressAsyncHandler(async (req, res, next) => {
     if (!query) return false
     let sql = '';
     if (category == 'interviews') {
-        sql = `SELECT v.* 
-        FROM videos AS v
-        RIGHT JOIN artists_videos AS av ON v.id_ = av.video_id
-        WHERE av.artist_id = ${query} AND v.category='interviews'`
+        sql = `SELECT * FROM videos WHERE artist_id = ${query} AND category='interviews'`
     } else {
         sql = `SELECT v.* 
         FROM videos AS v
