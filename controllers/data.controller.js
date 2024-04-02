@@ -146,7 +146,7 @@ export const getAllAlbumsBySearch = expressAsyncHandler(async (req, res, next) =
 
 export const getSongsBySort = expressAsyncHandler(async (req, res, next) => {
 
-    const { page, pageSize, query } = req.query;
+    const { page, pageSize, query, category } = req.query;
     let where = {
         name_: {
             not: '0'
@@ -159,6 +159,9 @@ export const getSongsBySort = expressAsyncHandler(async (req, res, next) => {
     const sortMode = jsonObj.sortMode;
     const offset = (pageNumber - 1) * size;
     let sql = `SELECT * FROM videos WHERE artist_id = ${artist}`
+    if (category && category == 'interviews') {
+        sql += ` AND category='interviews'`
+    }
     sql += ` LIMIT ${size} OFFSET ${offset}`;
     let baseQuery = Prisma.raw(sql);
     let videosUnsorted = await client.$queryRaw(baseQuery)
