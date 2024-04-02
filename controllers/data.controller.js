@@ -162,7 +162,6 @@ export const getSongsBySort = expressAsyncHandler(async (req, res, next) => {
     if (category && category == 'interviews') {
         sql += ` AND category='interviews'`
     }
-    sql += ` LIMIT ${size} OFFSET ${offset}`;
     let baseQuery = Prisma.raw(sql);
     let videosUnsorted = await client.$queryRaw(baseQuery)
     let videosSorted
@@ -195,7 +194,45 @@ export const getSongsBySort = expressAsyncHandler(async (req, res, next) => {
 
 })
 
+export const getGallerySort = expressAsyncHandler(async (req, res, next) => {
 
+    const { page, pageSize, query } = req.query;
+    let where = {
+        name_: {
+            not: '0'
+        }
+    };
+    const pageNumber = parseInt(page, 10);
+    const size = parseInt(pageSize, 10);
+    const jsonObj = JSON.parse(query);
+    const artist = jsonObj.artist;
+    const sortMode = jsonObj.sortMode;
+    const offset = (pageNumber - 1) * size;
+    let sql = `SELECT * FROM gallery WHERE artist_id = ${artist}`
+    let baseQuery = Prisma.raw(sql);
+    let galleryUnsorted = await client.$queryRaw(baseQuery)
+    let gallerySorted
+    switch (sortMode) {
+        case 'Recent First':
+            gallerySorted = galleryUnsorted
+                .map(gallery => ({ ...gallery, uploaded: new Date(gallery.date_) }))
+                .sort((a, b) => b.uploaded - a.uploaded);
+            break;
+
+        case 'Older First':
+            gallerySorted = galleryUnsorted
+                .map(gallery => ({ ...gallery, uploaded: new Date(gallery.date_) }))
+                .sort((a, b) => a.uploaded - b.uploaded);
+            break;
+    }
+    const paginatedgallery = gallerySorted.slice((page - 1) * pageSize, page * pageSize);
+
+    res.status(200).json({
+        status: true,
+        gallery: paginatedgallery
+    })
+
+})
 
 export const getInterviews = expressAsyncHandler(async (req, res, next) => {
 
