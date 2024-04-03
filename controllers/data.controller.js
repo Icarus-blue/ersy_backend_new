@@ -287,8 +287,25 @@ export const getColloborates = expressAsyncHandler(async (req, res, next) => {
     })
 })
 
+export const getColloboratesBySearch = expressAsyncHandler(async (req, res, next) => {
 
+    const { page, pageSize, query } = req.query
+    const pageNumber = parseInt(page, 10);
+    const size = parseInt(pageSize, 10);
+    if (!query) return false
+    const jsonObj = JSON.parse(query);
+    const artist = jsonObj.artist;
+    const q = jsonObj.q;
+    let sql = `SELECT * FROM artistes WHERE id_=${artist}`
+    let baseQuery = Prisma.raw(sql);
+    let colloborates = await client.$queryRaw(baseQuery)
+    colloborates = JSON.parse(colloborates[0].related_artists);
 
+    res.status(200).json({
+        status: true,
+        colloborates
+    })
+})
 
 export const getArtistes = expressAsyncHandler(async (req, res, next) => {
 
@@ -428,7 +445,7 @@ export const getArtistes = expressAsyncHandler(async (req, res, next) => {
                     case 'd':
                         return age > 40;
                     default:
-                        return true; // Includes the artist if no specific bracket matches
+                        return true;
                 }
             });
         }
@@ -440,7 +457,7 @@ export const getArtistes = expressAsyncHandler(async (req, res, next) => {
         const paginatedArtistes = artistesSorted.slice((page - 1) * pageSize, page * pageSize);
         const serializedArtistes = paginatedArtistes.map(artist => ({
             ...artist,
-            gallery_count: artist.gallery_count.toString(), // Convert BigInt to String
+            gallery_count: artist.gallery_count.toString(),
         }));
 
         res.status(200).json({
@@ -556,12 +573,9 @@ export const getArtist = expressAsyncHandler(async (req, res, next) => {
     const artist = await getArtistById(artist_id);
     if (!artist) return next({ message: 'artist could not be found', status: 404 })
 
-    // let artistSongs = await getArtistsSongs(artist.id_)
-
     res.status(200).json({
         status: true,
-        artist,
-        // songs: artistSongs
+        artist
     })
 })
 
@@ -581,17 +595,14 @@ export const getArtistSpecific = expressAsyncHandler(async (req, res, next) => {
 
 export const getAlbumsBySearch = expressAsyncHandler(async (req, res, next) => {
     const { search } = req.body
-
     const albums = await client.albums.findMany({
         where: {
-
             name_: {
                 contains: search.toLowerCase()
             },
         },
     });
     if (!albums) return next({ message: 'artist could not be found', status: 404 })
-
     res.status(200).json({
         status: true,
         albums,

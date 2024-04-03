@@ -27,4 +27,5 @@ router.get('/gallery', VideoController.getGallery)
 router.post('/gallery/search', VideoController.getGalleryBySearch)
 router.get('/getgallerybysort', VideoController.getGallerySort)
 
+router.get('/colloboratesbysearch', VideoController.getColloboratesBySearch)
 export default router
